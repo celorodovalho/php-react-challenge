@@ -13,11 +13,9 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
 Route::namespace('Api')->group(function () {
-    Route::middleware('api')->group(function ($router) {
-        Route::get('movies/upcoming', 'MoviesController@upcoming');
+    Route::middleware('api', 'cors')->group(function ($router) {
+        Route::any('movies/upcoming/{page?}', 'MoviesController@upcoming');
+        Route::get('movies/show/{id}', 'MoviesController@show');
     });
 });
