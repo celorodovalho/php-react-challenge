@@ -3,6 +3,12 @@ import { Navbar, Nav } from 'react-bootstrap';
 import { Link } from "react-router-dom";
 import logo from '../logo.svg';
 
+/**
+ * Single component to provide a header layout
+ *
+ * @returns {*}
+ * @constructor
+ */
 function Header() {
     return (
         <Navbar bg="dark" variant="dark" expand="lg" sticky="top">

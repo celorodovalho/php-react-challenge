@@ -1,11 +1,22 @@
 import React from 'react';
-import { Card, Button, Row, Col, ListGroup, ListGroupItem, Pagination } from 'react-bootstrap';
+import {Row, Col, ListGroup} from 'react-bootstrap';
+import http from '../plugins/http';
 
+/**
+ * Component class to show the movie details
+ */
 export default class Movie extends React.Component {
     constructor({match}) {
         super();
-        this.state = { movie: [], id: match.params.id};
+        this.state = {movie: [], id: match.params.id};
     }
+
+    /**
+     * Method to convert minutes in hours/minutes
+     *
+     * @param num
+     * @returns {string}
+     */
     convertTime(num) {
         const hours = (num / 60),
             rhours = Math.floor(hours),
@@ -13,11 +24,12 @@ export default class Movie extends React.Component {
             rminutes = Math.round(minutes);
         return rhours + "h " + rminutes + "m";
     }
+
     componentDidMount() {
-        fetch('http://127.0.0.1:8000/api/movies/show/'+this.state.id)
-            .then(result=>result.json())
+        http.get(`movies/show/${this.state.id}`)
+            .then(result => result.data)
             .then(movie => {
-                const poster = movie.poster_path ? "//image.tmdb.org/t/p/w500/" + movie.poster_path : '//via.placeholder.com/500x750';
+                const poster = movie.poster_path ? `//image.tmdb.org/t/p/w500/${movie.poster_path}` : '//via.placeholder.com/500x750';
                 const mv = (
                     <>
                         <Col sm={3}>
@@ -43,10 +55,11 @@ export default class Movie extends React.Component {
                             <div className="overview">
                                 <p>{movie.overview}</p>
                             </div>
-                            <ListGroup  as="ul">
+                            <ListGroup as="ul">
                                 {movie.credits.cast.map(cast => {
                                     return <ListGroup.Item as="li">
-                                        <img src={"//image.tmdb.org/t/p/w200"+cast.profile_path} alt="" style={{width: 45, marginRight: 10}}/>
+                                        <img src={`//image.tmdb.org/t/p/w200${cast.profile_path}`} alt=""
+                                             style={{width: 45, marginRight: 10}}/>
                                         <span>{cast.name} as <strong>{cast.character}</strong></span>
                                     </ListGroup.Item>;
                                 })}
@@ -58,9 +71,10 @@ export default class Movie extends React.Component {
                 this.setState({movie: mv});
             });
     }
+
     render() {
         return (
-            <Row style={{ 'marginTop': '15px' }}>
+            <Row style={{'marginTop': '15px'}}>
                 {this.state.movie}
             </Row>
         )

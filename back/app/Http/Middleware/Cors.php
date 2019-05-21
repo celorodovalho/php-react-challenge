@@ -4,6 +4,12 @@ namespace App\Http\Middleware;
 
 use Closure;
 
+/**
+ * A simple Middleware to avoid CORS problems
+ *
+ * Class Cors
+ * @package App\Http\Middleware
+ */
 class Cors
 {
     /**
