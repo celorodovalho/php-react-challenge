@@ -37,6 +37,8 @@ I choose the Laravel Framework to the backend for the following reasons:
 ## Local environment
 - In Terminal, go to folder /back and run the commands:
   - composer install
+  - cp .env.example .env
+  - php artisan key:generate
   - php artisan serve
 - It will start the backend server in the following address: http://localhost:8000
 - Go to folder /front and run the commands:
@@ -49,3 +51,4 @@ I choose the Laravel Framework to the backend for the following reasons:
 - Run the command "npm run build" in the "front" folder to generate the static file of Frontend application
 
 ## Remote environment
+https://youwe.marcelorodovalho.com/
