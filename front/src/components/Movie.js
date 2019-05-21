@@ -2,58 +2,66 @@ import React from 'react';
 import { Card, Button, Row, Col, ListGroup, ListGroupItem, Pagination } from 'react-bootstrap';
 
 export default class Movie extends React.Component {
-    constructor() {
+    constructor({match}) {
         super();
-        this.state = { movies: [], pagination: [] };
-        this.onPageChange = this.onPageChange.bind(this);
+        this.state = { movie: [], id: match.params.id};
     }
-    onPageChange(page) {
-        fetch('http://127.0.0.1:8000/api/movies/upcoming/'+page)
-            .then(result=>result.json())
-            .then(data => {
-                let moviesList = data.results.map((movie) => {
-                    const poster = movie.poster_path ? "//image.tmdb.org/t/p/w500/" + movie.poster_path : '//via.placeholder.com/500x750';
-                    return (
-                        <Col sm={3}>
-                            <Card style={{ 'marginTop': '15px' }}>
-                                <Card.Img variant="top" src={poster} />
-                                <Card.Body>
-                                    <Card.Title>{movie.title}</Card.Title>
-                                </Card.Body>
-                                <ListGroup className="list-group-flush">
-                                    <ListGroupItem><strong>Genres:</strong> {movie.genres.join(' | ')}</ListGroupItem>
-                                    <ListGroupItem><strong>Release Date:</strong> {movie.release_date.replace(/-/g, '/')}</ListGroupItem>
-                                </ListGroup>
-                                <Card.Footer>
-                                    <Button variant="primary">See details</Button>
-                                </Card.Footer>
-                            </Card>
-                        </Col>
-                    )
-                });
-
-                let pagination = [];
-
-                for (let number = 1; number <= data.total_pages; number++) {
-                    pagination.push(
-                        <Pagination.Item key={number} active={number === data.page} onClick={this.onPageChange.bind(this, number)}>
-                            {number}
-                        </Pagination.Item>,
-                    );
-                }
-
-                this.setState({movies: moviesList, pagination: pagination});
-                window.scrollTo(0, 0);
-            });
+    convertTime(num) {
+        const hours = (num / 60),
+            rhours = Math.floor(hours),
+            minutes = (hours - rhours) * 60,
+            rminutes = Math.round(minutes);
+        return rhours + "h " + rminutes + "m";
     }
     componentDidMount() {
-        this.onPageChange(1);
+        fetch('http://127.0.0.1:8000/api/movies/show/'+this.state.id)
+            .then(result=>result.json())
+            .then(movie => {
+                const poster = movie.poster_path ? "//image.tmdb.org/t/p/w500/" + movie.poster_path : '//via.placeholder.com/500x750';
+                const mv = (
+                    <>
+                        <Col sm={3}>
+                            <img src={poster} alt="" className="img-fluid"/>
+                        </Col>
+                        <Col sm={9}>
+                            <h3>{movie.title}</h3>
+                            <div className="genres">
+                                <strong>Genres:</strong> {movie.genres.map(item => item.name).join(' | ')}
+                            </div>
+                            <div className="rating">
+                                <strong>Rating:</strong> {movie.vote_average}/10
+                            </div>
+                            <div className="release_date">
+                                <strong>Release Date:</strong> {movie.release_date.replace(/-/g, '/')}
+                            </div>
+                            <div className="runtime">
+                                <strong>Runtime:</strong> {this.convertTime(movie.runtime)}
+                            </div>
+                            <div className="spoken_languages">
+                                <strong>Languages:</strong> {movie.spoken_languages.map(item => item.name).join(' | ')}
+                            </div>
+                            <div className="overview">
+                                <p>{movie.overview}</p>
+                            </div>
+                            <ListGroup  as="ul">
+                                {movie.credits.cast.map(cast => {
+                                    return <ListGroup.Item as="li">
+                                        <img src={"//image.tmdb.org/t/p/w200"+cast.profile_path} alt="" style={{width: 45, marginRight: 10}}/>
+                                        <span>{cast.name} as <strong>{cast.character}</strong></span>
+                                    </ListGroup.Item>;
+                                })}
+                            </ListGroup>
+                        </Col>
+                    </>
+                );
+
+                this.setState({movie: mv});
+            });
     }
     render() {
         return (
-            <Row>
-                {this.state.movies}
-                <Col><Pagination style={{ 'marginTop': '15px', 'justifyContent': 'center' }}>{this.state.pagination}</Pagination></Col>
+            <Row style={{ 'marginTop': '15px' }}>
+                {this.state.movie}
             </Row>
         )
     }

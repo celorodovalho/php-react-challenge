@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Tmdb\Laravel\Facades\Tmdb;
 use Tmdb\Repository\GenreRepository;
+use Tmdb\Repository\SearchRepository;
 
 class MoviesController extends Controller
 {
@@ -14,12 +15,18 @@ class MoviesController extends Controller
     private $genreRepository;
 
     /**
+     * @var SearchRepository
+     */
+    private $searchRepository;
+
+    /**
      * MoviesController constructor.
      * @param GenreRepository $genreRepository
      */
-    public function __construct(GenreRepository $genreRepository)
+    public function __construct(GenreRepository $genreRepository, SearchRepository $searchRepository)
     {
         $this->genreRepository = $genreRepository;
+        $this->searchRepository = $searchRepository;
     }
 
     public function upcoming($page = 1)
@@ -31,7 +38,13 @@ class MoviesController extends Controller
 
     public function show($id)
     {
-        return Tmdb::getMoviesApi()->getMovie($id);
+        return Tmdb::getMoviesApi()->getMovie($id, ['append_to_response' => 'credits']);
+    }
+
+    public function search($page = 1)
+    {
+        dump(5);die;
+        $this->searchRepository->searchMovie();
     }
 
     private function fillGenres($movies)

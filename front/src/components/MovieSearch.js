@@ -1,16 +1,27 @@
 import React from 'react';
-import { Card, Button, Row, Col, ListGroup, ListGroupItem, Pagination } from 'react-bootstrap';
+import {Card, Button, Row, Col, ListGroup, ListGroupItem, Pagination, FormControl, Form} from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 
 export default class Movies extends React.Component {
     constructor() {
         super();
-        this.state = { movies: [], pagination: [] };
-        this.onPageChange = this.onPageChange.bind(this);
+        this.state = { movies: [], pagination: [], form: null, query: ''};
+        this.onSearch = this.onSearch.bind(this);
     }
-    onPageChange(page) {
-        fetch('http://127.0.0.1:8000/api/movies/upcoming/'+page)
+    onSearch(page) {
+        axios.defaults.headers.post['Content-Type'] ='application/x-www-form-urlencoded';
+        axios.post('http://127.0.0.1:8000/api/movies/search/'+page, {query: this.state.query}, {
+            crossDomain: true,
+            withCredentials: true,
+            headers: {
+                // 'Content-Type': 'text/html',
+                // 'Content-Type': 'multipart/form-data',
+                // 'Accept': 'application/json',
+                // 'Content-Type': 'x-www-form-urlencoded',
+                'Accept-Language': 'en'
+            }})
             .then(result=>result.json())
             .then(data => {
                 let moviesList = data.results.map((movie) => {
@@ -38,22 +49,33 @@ export default class Movies extends React.Component {
 
                 for (let number = 1; number <= data.total_pages; number++) {
                     pagination.push(
-                        <Pagination.Item key={number} active={number === data.page} onClick={this.onPageChange.bind(this, number)}>
+                        <Pagination.Item key={number} active={number === data.page} onClick={this.onSearch.bind(this, number)}>
                             {number}
                         </Pagination.Item>,
                     );
                 }
 
-                this.setState({movies: moviesList, pagination: pagination});
+                let form = <Form inline onSubmit={this.onSearch.bind(this, data.page)}>
+                    <FormControl type="text" placeholder="Search" className="mr-sm-2" value={this.state.query} onChange={this.updateInputValue}/>
+                    <Button variant="outline-success">Search</Button>
+                </Form>;
+
+                this.setState({movies: moviesList, pagination: pagination, form: form});
                 window.scrollTo(0, 0);
             });
     }
+    updateInputValue (e) {
+        this.setState({
+            query: e.target.value
+        });
+    }
     componentDidMount() {
-        this.onPageChange(1);
+        this.onSearch(1);
     }
     render() {
         return (
             <Row>
+
                 {this.state.movies}
                 <Col><Pagination style={{ 'marginTop': '15px', 'justifyContent': 'center' }}>{this.state.pagination}</Pagination></Col>
             </Row>

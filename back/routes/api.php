@@ -15,7 +15,8 @@ use Illuminate\Http\Request;
 
 Route::namespace('Api')->group(function () {
     Route::middleware('api', 'cors')->group(function ($router) {
-        Route::any('movies/upcoming/{page?}', 'MoviesController@upcoming');
+        Route::get('movies/upcoming/{page?}', 'MoviesController@upcoming');
         Route::get('movies/show/{id}', 'MoviesController@show');
+        Route::post('movies/search/{page?}', 'MoviesController@search');
     });
 });
